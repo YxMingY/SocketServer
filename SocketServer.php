@@ -1,6 +1,8 @@
 <?php
 
 namespace yxmingy;
+use function call_user_func;
+
 require_once "Socket/socket_h.php";
 
 class SocketServer
@@ -11,7 +13,7 @@ class SocketServer
   protected $on_connect;
   protected $on_message;
   protected $on_disconnect;
-  public function __construct(string $addr = '0',int $port)
+  public function __construct(string $addr = '0',int $port = 23)
   {
     $this->sock = new ServerSocket(SocketBase::DOM_IPV4,SocketBase::TYPE_TCP);
     $this->sock->bind($addr,$port)->listen();
@@ -35,18 +37,21 @@ class SocketServer
     while (true) {
       if ($c=$this->selectClient()) {
         $this->clients[$c->cid()] = $c;
-        \call_user_func($this->on_connect, $c);
+        if($this->on_connect)
+          call_user_func($this->on_connect, $c);
       }
       if($c=$this->selectMessage($this->clients)) {
         //Check if client disconnected
         if(($msg=$c->read())===null) {
           //Preclose let it be ignored when broadcast, but not delete res.
           $c->preClose();
-          \call_user_func($this->on_disconnect, $c);
+          if($this->on_disconnect)
+            call_user_func($this->on_disconnect, $c);
           $this->kick($c);
           continue;
         }
-        \call_user_func($this->on_message, $c, $msg);
+        if($this->on_message)
+          call_user_func($this->on_message, $c, $msg);
       }
     }
   }

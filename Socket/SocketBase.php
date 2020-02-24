@@ -1,6 +1,11 @@
 <?php
 declare(strict_types=1);
 namespace yxmingy;
+use Exception;
+
+/**
+ * @method listen()
+ */
 abstract class SocketBase
 {
   const DOM_IPV4 = AF_INET;
@@ -31,7 +36,7 @@ abstract class SocketBase
         $this->protocol = getprotobyname("icmp");
         break;
       default:
-        throw new \Exception("[Socket] Protocol type not exists!");
+        throw new Exception("[Socket] Protocol type not exists!");
     }
     if($socket != null) {
       $this->socket = $socket;
@@ -137,9 +142,9 @@ abstract class SocketBase
     return $this->closed;
   }
 
-  protected function last_error():\Exception
+  protected function last_error(): Exception
   {
-    return new \Exception("[Socket] Error ".socket_strerror(socket_last_error()));
+    return new Exception("[Socket] Error ".socket_strerror(socket_last_error()));
   }
   
   public function setBlock():bool
