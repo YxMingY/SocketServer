@@ -1,11 +1,10 @@
 <?php
 
 namespace yxmingy;
-use function call_user_func;
 
-require_once "Socket/socket_h.php";
+@require_once "Socket/socket_h.php";
 
-class SocketServer
+class NormalServer
 {
   protected $sock;
   protected $clients = [];
@@ -38,7 +37,7 @@ class SocketServer
       if ($c=$this->selectClient()) {
         $this->clients[$c->cid()] = $c;
         if($this->on_connect)
-          call_user_func($this->on_connect, $c);
+          ($this->on_connect)($c,$this);
       }
       if($c=$this->selectMessage($this->clients)) {
         //Check if client disconnected
@@ -46,12 +45,12 @@ class SocketServer
           //Preclose let it be ignored when broadcast, but not delete res.
           $c->preClose();
           if($this->on_disconnect)
-            call_user_func($this->on_disconnect, $c);
-          $this->kick($c);
+            ($this->on_disconnect)($c,$this);
+          $this->kick($c,false);
           continue;
         }
         if($this->on_message)
-          call_user_func($this->on_message, $c, $msg);
+          ($this->on_message)($c, $msg,$this);
       }
     }
   }
@@ -64,10 +63,15 @@ class SocketServer
   }
   public function broadcast(string $msg)
   {
-    batch_write($this->clients,$msg);
+    foreach($this->clients as $socket) {
+      if(!$socket->closed())
+        $socket->write($msg);
+    }
   }
-  public function kick(ClientSocket $client)
+  public function kick(ClientSocket $client,bool $call = true)
   {
+    if($call)
+      ($this->on_disconnect)($client,$this);
     $client->safeClose();
     unset($this->clients[$client->cid()]);
   }

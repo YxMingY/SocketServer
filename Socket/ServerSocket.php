@@ -1,5 +1,8 @@
 <?php
 namespace yxmingy;
+use Exception;
+use Volatile;
+
 class ServerSocket extends SocketBase
 {
   
@@ -9,7 +12,7 @@ class ServerSocket extends SocketBase
   public function listen(int $backlog = 0):ServerSocket
   {
     if(socket_listen($this->socket,$backlog) === false)
-      throw $this->last_error();
+      exit($this->last_error()->getTraceAsString());
     return $this;
   }
   public function _accept()
@@ -25,8 +28,8 @@ class ServerSocket extends SocketBase
   {
     try {
       return socket_select($reads, $writes, $excepts, $t_sec, $t_usec);
-    }catch (\Exception $e){
-      exit();
+    }catch (Exception $e){
+      exit($e->getTraceAsString());
     }
   }
   
@@ -34,16 +37,16 @@ class ServerSocket extends SocketBase
   {
     foreach($reads as $read) {
       if($read->closed) return -1;
-    } 
+    }
     foreach($writes as $write) {
       if($write->closed) return -1;
     }
     foreach($excepts as $except) {
       if($except->closed) return -1;
     }
-    $creads = get_resources($reads);
-    $cwrites = get_resources($writes);
-    $cexcepts = get_resources($excepts);
+    $creads = SocketBase::get_resources($reads);
+    $cwrites = SocketBase::get_resources($writes);
+    $cexcepts = SocketBase::get_resources($excepts);
     $reads = $writes = $excepts = [];
     $code = $this->_select($creads,$cwrites,$cexcepts,$t_sec,$t_usec);
     //var_dump(error_get_last());
@@ -79,13 +82,19 @@ class ServerSocket extends SocketBase
     }
     return null;
   }
-  public function selectNewMessage(array $clients):?ClientSocket
+  public function selectNewMessage($clients):?ClientSocket
   {
+    if($clients instanceof Volatile) {
+      $clients = (array)$clients;
+      foreach ($clients as &$client) {
+        $client = $this->getClientInstance($client);
+      }
+    }
     if(empty($clients)) return null;
     $writes = $excepts = [];
     $code = $this->select($clients,$writes,$excepts,0);
     if($code > 0 && count($clients) > 0) {
-       return array_shift($clients);
+      return array_shift($clients);
     }
     return null;
   }

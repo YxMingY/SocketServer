@@ -36,7 +36,7 @@ abstract class SocketBase
         $this->protocol = getprotobyname("icmp");
         break;
       default:
-        throw new Exception("[Socket] Protocol type not exists!");
+        exit("[Socket] Protocol type not exists!");
     }
     if($socket != null) {
       $this->socket = $socket;
@@ -44,7 +44,7 @@ abstract class SocketBase
       $this->socket = socket_create($domin,$type,$this->protocol);
     }
     if($this->socket === false)
-      throw $this->last_error();
+      exit($this->last_error()->getTraceAsString());
   }
   
   
@@ -55,6 +55,17 @@ abstract class SocketBase
   public function getClientInstance($resource,$cid = null)
   {
     return new ClientSocket($this->domin_type,$this->type,$resource,$cid);
+  }
+
+  /* param SocketBase[] */
+  public static function get_resources(array $sockets):array
+  {
+    $res = [];
+    foreach($sockets as $key=>$socket)
+    {
+      $res[$key] = $socket->getSocketResource();
+    }
+    return $res;
   }
   
   public function bind(string $address = '0',int $port = 0):SocketBase
@@ -159,7 +170,7 @@ abstract class SocketBase
   
   public function getSocketResource()
   {
-    return $this->socket;
+    return ($this->socket);
   }
   
   public function getSockName():?string
