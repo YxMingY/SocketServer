@@ -78,6 +78,7 @@ class NormalServer
   public function stop()
   {
     foreach ($this->clients as $client){
+      $client->write("Server stopped");
       $client->safeClose();
     }
     $this->sock->safeClose();

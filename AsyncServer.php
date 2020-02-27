@@ -63,7 +63,7 @@ class AsyncServer extends
   {
     foreach ($this->clients as $client)
     {
-      self::$ss->getClientInstance($client)->write($msg);
+      $this->getServer()->getClientInstance($client)->write($msg);
     }
   }
   public function kick(ClientSocket $client,bool $call = true)
@@ -73,11 +73,15 @@ class AsyncServer extends
     $client->safeClose();
     unset($this->clients[$client->cid()]);
   }
+  //Stopping a Async Server seems to cause to stop all threads
+  //I cannot solve the error 'zend_mm_heap corrupted'
   public function stop()
   {
     $this->closed = true;
     foreach ($this->clients as $client){
-      $client->safeClose();
+      $c = $this->getServer()->getClientInstance($client);
+      $c->write("Server stopped");
+      $c->safeClose();
     }
     $this->getServer()->safeClose();
   }

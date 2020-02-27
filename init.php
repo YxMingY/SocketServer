@@ -5,28 +5,30 @@ require_once "NormalServer.php";
 $s = new \yxmingy\AsyncServer("0.0.0.0",2333);
 $s->onConnect(function ($c,$s) {
   $c->write("Welcome.\n");
-  //var_dump($c);
-  //var_dump($s);
   $s->broadcast($c->getPeerAddr()." connected ~ welcome\n");
 });
 $s->onMessage(function ($c,string $msg,$s) {
   $s->broadcast($c->getPeerAddr().": ".$msg.PHP_EOL);
+  if(trim($msg) == "stop") {
+    $s->stop();
+    //zend_mm_heap corrupted
+  }
   $s->kick($c);
 });
 $s->onDisconnect(function ($c,$s) {
   $c->write("bye\n");
   $s->broadcast($c->getPeerAddr()." disconnected\n");
 });
-$s2 = new \yxmingy\AsyncServer("0.0.0.0",2334);
+$s2 = new \yxmingy\NormalServer("0.0.0.0",2334);
 $s2->onConnect(function ($c,$s) {
   $c->write("Welcome to s2.\n");
-  //var_dump($c);
-  //var_dump($s);
   $s->broadcast($c->getPeerAddr()." connected2 ~ welcome\n");
 });
 $s2->onMessage(function ($c,string $msg,$s) {
   $s->broadcast($c->getPeerAddr().": ".$msg.PHP_EOL);
-  $s->kick($c);
+  if(trim($msg) == "stop") {
+    $s->stop();
+  }
 });
 $s2->onDisconnect(function ($c,$s) {
   $c->write("2bye\n");
