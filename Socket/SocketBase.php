@@ -73,6 +73,15 @@ abstract class SocketBase
     socket_bind($this->socket,$address,$port);
     return $this;
   }
+
+  public function rebind(string $address = '0',int $port = 0)
+  {
+    if (!socket_set_option($this->getSocketResource(),SOL_SOCKET, SO_REUSEADDR, 1)) {
+      echo socket_strerror(socket_last_error($this->getSocketResource()));
+      exit;
+    }
+    $this->bind($address,$port);
+  }
   
   public function equals(SocketBase $socket)
   {
