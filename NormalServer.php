@@ -15,7 +15,7 @@ class NormalServer
   public function __construct(string $addr = '0',int $port = 23)
   {
     $this->sock = new ServerSocket(SocketBase::DOM_IPV4,SocketBase::TYPE_TCP);
-    $this->sock->bind($addr,$port)->listen();
+    $this->sock->rebind($addr,$port)->listen();
   }
   //Not supposed to use
   public function acceptClient():?ClientSocket

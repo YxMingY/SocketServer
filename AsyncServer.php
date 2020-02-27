@@ -17,7 +17,7 @@ class AsyncServer extends
   public function __construct(string $addr = '0',int $port = 23)
   {
     $sock = new ServerSocket(SocketBase::DOM_IPV4,SocketBase::TYPE_TCP);
-    $sock->bind($addr,$port)->listen();
+    $sock->rebind($addr,$port)->listen();
     $this->res = $sock->getSocketResource();
     $this->clients = [];
   }

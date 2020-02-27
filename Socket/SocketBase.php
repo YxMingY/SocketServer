@@ -74,13 +74,13 @@ abstract class SocketBase
     return $this;
   }
 
-  public function rebind(string $address = '0',int $port = 0)
+  public function rebind(string $address = '0',int $port = 0):SocketBase
   {
     if (!socket_set_option($this->getSocketResource(),SOL_SOCKET, SO_REUSEADDR, 1)) {
       echo socket_strerror(socket_last_error($this->getSocketResource()));
       exit;
     }
-    $this->bind($address,$port);
+    return $this->bind($address,$port);
   }
   
   public function equals(SocketBase $socket)
