@@ -68,7 +68,7 @@ class AsyncServer extends
   }
   public function kick(ClientSocket $client,bool $call = true)
   {
-    if($call)
+    if($call && $this->on_disconnect)
       ($this->on_disconnect)($client,$this);
     $client->safeClose();
     unset($this->clients[$client->cid()]);
