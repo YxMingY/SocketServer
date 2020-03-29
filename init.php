@@ -1,8 +1,12 @@
 <?php
-require_once "Socket/socket_h.php";
-require_once "AsyncServer.php";
-require_once "NormalServer.php";
-$s = new \yxmingy\AsyncServer("0.0.0.0",2333);
+function autoload(string $class)
+{
+  $class = str_replace('\\', '/', $class);
+  $file_name = dirname(__FILE__).'/'.$class.'.php';
+  require_once $file_name;
+}
+spl_autoload_register("autoload");
+$s = new \yxmingy\socket\server\AsyncServer("0.0.0.0",2333);
 $s->onConnect(function ($c,$s) {
   $c->write("Welcome.\n");
   $s->broadcast($c->getPeerAddr()." connected ~ welcome\n");
@@ -19,7 +23,7 @@ $s->onDisconnect(function ($c,$s) {
   $c->write("bye\n");
   $s->broadcast($c->getPeerAddr()." disconnected\n");
 });
-$s2 = new \yxmingy\NormalServer("0.0.0.0",2334);
+$s2 = new \yxmingy\socket\server\NormalServer("0.0.0.0",2334);
 $s2->onConnect(function ($c,$s) {
   $c->write("Welcome to s2.\n");
   $s->broadcast($c->getPeerAddr()." connected2 ~ welcome\n");
