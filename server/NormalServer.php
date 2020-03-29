@@ -1,7 +1,7 @@
 <?php
 
 namespace yxmingy\socket\server;
-use yxmingy\socket\{SocketBase,ServerSocket};
+use yxmingy\socket\{SocketBase,ServerSocket,ClientSocket};
 class NormalServer
 {
   protected $sock;
