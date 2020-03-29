@@ -2,7 +2,7 @@
 
 namespace yxmingy\socket\server;
 use Thread;
-
+use yxmingy\socket\{SocketBase,ServerSocket};
 class AsyncServer extends
   Thread {
   private $res;
