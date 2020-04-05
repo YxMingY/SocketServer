@@ -1,12 +1,5 @@
 $<?php
-function autoload(string $class)
-{
-  $class = str_replace('\\', '/', $class);
-  $class = substr($class,strlen('/yxmingy/socket'));
-  $file_name = dirname(__FILE__).'/'.$class.'.php';
-  require_once $file_name;
-}
-spl_autoload_register("autoload");
+require_once "autoload.php";
 $s = new \yxmingy\socket\server\NormalServer("0.0.0.0",2333);
 $s->onConnect(function ($c,$s) {
   echo $c->getPeerAddr().PHP_EOL;
